@@ -6,9 +6,7 @@ classdef Interactor
 %       the "fileName" have to format follow RoomName_Floor
         function result = retrieveData(interactor, fileName)
             readResult = interactor.readSTLFile(fileName);
-            result.faces = readResult.faces;
-            result.vertexes = readResult.vertexes;
-            result.colors = readResult.colors;
+            result = Geometry(readResult.vertexes, readResult.faces, readResult.colors);
         end
         
         function result = retrieveObjects(obj, fileName) 
@@ -22,11 +20,13 @@ classdef Interactor
             if fid == -1
                 error('File coule not be opened, check name or path.');
             end
+            fprintf('Reading file %s.\n',fileName);
             
             numberOfVertex = 0;
             report_num = 0;
             VColor = 0;
-            
+            v = zeros(10000, 3);
+            c = zeros(10000, 1);
             while feof(fid) == 0            % Test for end of file, if not then do stuff
                 tline = fgetl(fid);         % Reads a line of data from file
                 fword = sscanf(tline, '%s');% Make the line a character string
@@ -39,11 +39,10 @@ classdef Interactor
                     numberOfVertex = numberOfVertex + 1;                % If a V we count the # of V's
                     report_num = report_num + 1;    % Report a counter, so long files show status
                     if report_num > 249
-                        fprintf('Reading vertix num: %d.\n',numberOfVertex);
                         report_num = 0;
                     end
-                    v(:, numberOfVertex) = sscanf(tline, '%*s %f %f %f'); % & if a V, get the XYZ data of it.
-                    c(:,numberOfVertex) = VColor;              % A color for each vertex, which will color the faces.
+                    v(numberOfVertex, :) = sscanf(tline, '%*s %f %f %f'); % & if a V, get the XYZ data of it.
+                    c(numberOfVertex, :) = VColor;              % A color for each vertex, which will color the faces.
                 end
             end
             %   Build face list; The vertices are in order, so just number them.
@@ -55,8 +54,8 @@ classdef Interactor
             %   Return the faces and vertexs.
             %
             result.faces = f';  %Orients the array for direct use in patch.
-            result.vertexes = v';  % "
-            result.colors = c';
+            result.vertexes = v(1:numberOfVertex, :);  % "
+            result.colors = c(1:numberOfVertex, :);
             %
             fclose(fid);
         end

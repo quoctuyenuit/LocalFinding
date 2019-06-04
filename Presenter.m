@@ -1,8 +1,8 @@
 classdef Presenter < handle
     properties (Access = private)
         interactor Interactor
-        listOfRoom %List of rooms in model
-        listOfObjects %List of current objects
+        listOfRooms     %List of rooms in model
+        listOfObjects   %List of current objects
     end
     methods (Access = public)
         %Constructor
@@ -10,33 +10,42 @@ classdef Presenter < handle
             presenter.interactor = Interactor();
             presenter.retrieveData();
         end
+        
+        function list = getListOfFloors(obj) 
+            list = zeros(1, max(presenter.listOfRooms(:).floor));
+            for i = 1 : max(presenter.listOfRooms(:).floor)
+                list(i) = sprintfc('%d',i);
+            end
+        end
         %==================================================================
         function buildModel(obj, view)
-            for i = 1: length(obj.listOfRoom)
-                modelInformation.faces = obj.listOfRoom(i).faces;
-                modelInformation.vertexes = obj.listOfRoom(i).vertexes;
-                modelInformation.colors = obj.listOfRoom(i).colors;
-                view.plotModel(modelInformation, 1);
+            view.prepareDraw(1);
+            
+            for i = 1: length(obj.listOfRooms)
+                isShowCeiling = 1;
+                axesIndex = 1;
+                obj.buildRoom(obj.listOfRooms(i), isShowCeiling, axesIndex, view);
             end
            
             view.drawObjects(obj.listOfObjects);
             
+            view.finishDraw(1);
         end
         
         function updateObjects(obj, view) 
-            for i = 1: length(obj.listOfObjects)
-                obj.listOfObjects(i).x = obj.listOfObjects(i).x + 5;
-            end
-            
-            view.updateObjects(obj.listOfObjects);
+%             for i = 1: length(obj.listOfObjects)
+%                 obj.listOfObjects(i).x = obj.listOfObjects(i).x + 5;
+%             end
+%             
+%             view.updateObjects(obj.listOfObjects);
         end
         
         function result = checkArea(obj, location)
-            for i = 1:length(obj.listOfRoom)
-                currentRoomVertexes = obj.listOfRoom(i).vertexes;
+            for i = 1:length(obj.listOfRooms)
+                currentRoomVertexes = obj.listOfRooms(i).vertexes;
                 if obj.isInsideOf(currentRoomVertexes, location)
-                    result.label = obj.listOfRoom(i).label;
-                    result.floor = obj.listOfRoom(i).floor;
+                    result.label = obj.listOfRooms(i).label;
+                    result.floor = obj.listOfRooms(i).floor;
                     return;
                 end
             end
@@ -45,19 +54,25 @@ classdef Presenter < handle
         end
         
         function viewOnFloor(obj, floorNumber, view)
-            for i = 1: length(obj.listOfRoom)
-                if (obj.listOfRoom(i).floor == floorNumber)
-                    modelInformation.faces = obj.listOfRoom(i).faces;
-                    modelInformation.vertexes = obj.listOfRoom(i).vertexes;
-                    modelInformation.colors = obj.listOfRoom(i).colors;
-                    
-                    view.plotModel(modelInformation, 2);
+            for i = 1: length(obj.listOfRooms)
+                room = obj.listOfRooms(i);
+                if (room.floor == floorNumber)
+                    isShowCeiling = 0; %False
+                    axesIndex = 2; %Show on 2D mode
+                    obj.buildRoom(room, isShowCeiling, axesIndex);
                 end
             end
         end
     end
     
     methods (Access = private) 
+        function buildRoom(obj, room, isShowCeiling, axesIndex, view)
+            view.plotModel(room.body, axesIndex);
+            if isShowCeiling
+                view.plotModel(room.ceiling, axesIndex);
+            end
+        end
+        
         function retrieveData(obj)
             %--------------------------------------------------------------
             %read objects data
@@ -71,27 +86,70 @@ classdef Presenter < handle
             resources(1:2, :) = []; 
             %--------------------------------------------------------------
             [rows,~] = size(resources);
-            index = 1;
             for i = 1: rows
                 if contains(resources(i).name, '.stl')
                     path = strcat(resources(i).folder, '/', resources(i).name);
+                    
                     readResult = obj.interactor.retrieveData(path);
                     
                     try
                         fileName = erase(resources(i).name, '.stl');
                         splitResult = split(fileName, '_');
-                        obj.listOfRoom(index).label = splitResult(1);
-                        obj.listOfRoom(index).floor = str2double(splitResult(2));
+                        %--------------------------------------------------
+                        if length(splitResult) >= 3
+                            if (str2double(splitResult(3)) == 0)
+                                isCeiling = 1;
+                            else
+                                isCeiling = 0;
+                            end
+                        else
+                            isCeiling = 0;
+                        end
+                        
+                        %--------------------------------------------------
+                        name = splitResult(1);
+                        disp(name);
+                        floor = str2double(splitResult(2));
                     catch
-                        result.label = 'UnKnown';
-                        result.floor = 0;
+                        name = 'UnKnown';
+                        floor = 0;
+                        isCeiling = 0;
                     end
                     
-                    obj.listOfRoom(index).vertexes = readResult.vertexes;
-                    obj.listOfRoom(index).faces = readResult.faces;
-                    obj.listOfRoom(index).colors = readResult.colors;
-                    index = index + 1;
+                    obj.addRoomIntoList(name, floor, readResult, isCeiling);
                 end
+            end
+        end
+        
+        %Add a room into listOfRoomss
+        function addRoomIntoList(obj, name, floor, geometry, isCeiling)
+            %If room already exists => update room
+            count = length(obj.listOfRooms);
+            for i = 1 : count
+                room = obj.listOfRooms(i);
+                if strcmpi(room.name, name) && room.floor == floor
+                    if isCeiling
+                        room.ceiling = room.ceiling.concat(geometry);
+                    else
+                        room.body = room.body.concat(geometry);
+                    end
+                    obj.listOfRooms(i) = room;
+                    return;
+                end
+            end
+            
+            %Orelse, create new room and add it into list
+            room = RoomEntity(name, floor);
+            if isCeiling
+                room.ceiling = geometry;
+            else
+                room.body = geometry;
+            end
+            
+            if count == 0
+                obj.listOfRooms = [room];
+            else 
+                obj.listOfRooms(count + 1) = room;
             end
         end
         
