@@ -1,0 +1,86 @@
+solid com.sketchup.SketchUp.2019
+facet normal -0 -0 -1
+  outer loop
+    vertex 36500 17414.40625 14050
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 33450.67578125 17414.40625 14050
+  endloop
+endfacet
+facet normal -0 -0 -1
+  outer loop
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 36500 17414.40625 14050
+    vertex 36500 13455.4072265625 14050
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 36500 13455.4072265625 14450
+    vertex 33450.67578125 17414.40625 14450
+    vertex 33450.67578125 13455.4072265625 14450
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 33450.67578125 17414.40625 14450
+    vertex 36500 13455.4072265625 14450
+    vertex 36500 17414.40625 14450
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 33450.67578125 17414.40625 14450
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 33450.67578125 13455.4072265625 14450
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 33450.67578125 17414.40625 14450
+    vertex 33450.67578125 17414.40625 14050
+  endloop
+endfacet
+facet normal 0 -1 0
+  outer loop
+    vertex 36500 13455.4072265625 14450
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 36500 13455.4072265625 14050
+  endloop
+endfacet
+facet normal 0 -1 0
+  outer loop
+    vertex 33450.67578125 13455.4072265625 14050
+    vertex 36500 13455.4072265625 14450
+    vertex 33450.67578125 13455.4072265625 14450
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 36500 17414.40625 14050
+    vertex 36500 13455.4072265625 14450
+    vertex 36500 13455.4072265625 14050
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 36500 13455.4072265625 14450
+    vertex 36500 17414.40625 14050
+    vertex 36500 17414.40625 14450
+  endloop
+endfacet
+facet normal 0 1 0
+  outer loop
+    vertex 33450.67578125 17414.40625 14450
+    vertex 36500 17414.40625 14050
+    vertex 33450.67578125 17414.40625 14050
+  endloop
+endfacet
+facet normal 0 1 0
+  outer loop
+    vertex 36500 17414.40625 14050
+    vertex 33450.67578125 17414.40625 14450
+    vertex 36500 17414.40625 14450
+  endloop
+endfacet
+endsolid com.sketchup.SketchUp.2019

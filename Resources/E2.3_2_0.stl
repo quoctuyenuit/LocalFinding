@@ -1,0 +1,114 @@
+solid com.sketchup.SketchUp.2019
+facet normal 0 0 -1
+  outer loop
+    vertex 33500 17355.26171875 10550
+    vertex 24700 11656.01171875 10550
+    vertex 24700 17355.26171875 10550
+  endloop
+endfacet
+facet normal 0 0 -1
+  outer loop
+    vertex 24700 11656.01171875 10550
+    vertex 33500 17355.26171875 10550
+    vertex 33500 17256.01171875 10550
+  endloop
+endfacet
+facet normal 0 0 -1
+  outer loop
+    vertex 24700 11656.01171875 10550
+    vertex 33500 17256.01171875 10550
+    vertex 33500 11656.01171875 10550
+  endloop
+endfacet
+facet normal 0 -1 2.741112106494958e-17
+  outer loop
+    vertex 33500 11656.01171875 10950
+    vertex 24700 11656.01171875 10550
+    vertex 33500 11656.01171875 10550
+  endloop
+endfacet
+facet normal 0 -1 2.741112106494958e-17
+  outer loop
+    vertex 24700 11656.01171875 10550
+    vertex 33500 11656.01171875 10950
+    vertex 24700 11656.01171875 10950
+  endloop
+endfacet
+facet normal -1 -1.479768675809737e-33 -2.336456012578507e-17
+  outer loop
+    vertex 24700 17355.26171875 10950
+    vertex 24700 11656.01171875 10550
+    vertex 24700 11656.01171875 10950
+  endloop
+endfacet
+facet normal -1 -1.479768675809737e-33 -2.336456012578507e-17
+  outer loop
+    vertex 24700 11656.01171875 10550
+    vertex 24700 17355.26171875 10950
+    vertex 24700 17355.26171875 10550
+  endloop
+endfacet
+facet normal 1.138912599282713e-33 1 -2.741112106494958e-17
+  outer loop
+    vertex 24700 17355.26171875 10950
+    vertex 33500 17355.26171875 10550
+    vertex 24700 17355.26171875 10550
+  endloop
+endfacet
+facet normal 1.138912599282713e-33 1 -2.741112106494958e-17
+  outer loop
+    vertex 33500 17355.26171875 10550
+    vertex 24700 17355.26171875 10950
+    vertex 33500 17355.26171875 10950
+  endloop
+endfacet
+facet normal 1 1.018107132820067e-15 0
+  outer loop
+    vertex 33500 17256.01171875 10550
+    vertex 33500 11656.01171875 10950
+    vertex 33500 11656.01171875 10550
+  endloop
+endfacet
+facet normal 1 1.018107132820067e-15 0
+  outer loop
+    vertex 33500 11656.01171875 10950
+    vertex 33500 17256.01171875 10550
+    vertex 33500 17256.01171875 10950
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 33500 17355.26171875 10550
+    vertex 33500 17256.01171875 10950
+    vertex 33500 17256.01171875 10550
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 33500 17256.01171875 10950
+    vertex 33500 17355.26171875 10550
+    vertex 33500 17355.26171875 10950
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 33500 11656.01171875 10950
+    vertex 24700 17355.26171875 10950
+    vertex 24700 11656.01171875 10950
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 24700 17355.26171875 10950
+    vertex 33500 11656.01171875 10950
+    vertex 33500 17256.01171875 10950
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 33500 17355.26171875 10950
+    vertex 24700 17355.26171875 10950
+    vertex 33500 17256.01171875 10950
+  endloop
+endfacet
+endsolid com.sketchup.SketchUp.2019
