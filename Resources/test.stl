@@ -1,0 +1,86 @@
+solid com.sketchup.SketchUp.2019
+facet normal 0 0 -1
+  outer loop
+    vertex 4627938.5 1101567.875 20588322
+    vertex 150728.375 -714223.125 20588322
+    vertex 150728.375 1101567.875 20588322
+  endloop
+endfacet
+facet normal 0 0 -1
+  outer loop
+    vertex 150728.375 -714223.125 20588322
+    vertex 4627938.5 1101567.875 20588322
+    vertex 4627938.5 -714223.125 20588322
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 4627938.5 -714223.125 22837234
+    vertex 150728.375 801836.875 22837234
+    vertex 150728.375 -714223.125 22837234
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 150728.375 801836.875 22837234
+    vertex 4627938.5 -714223.125 22837234
+    vertex 4627938.5 801836.875 22837234
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 150728.375 801836.875 22837234
+    vertex 150728.375 -714223.125 20588322
+    vertex 150728.375 -714223.125 22837234
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 150728.375 -714223.125 20588322
+    vertex 150728.375 801836.875 22837234
+    vertex 150728.375 1101567.875 20588322
+  endloop
+endfacet
+facet normal 0 0.991235077381134 0.1321099847555161
+  outer loop
+    vertex 150728.375 801836.875 22837234
+    vertex 4627938.5 1101567.875 20588322
+    vertex 150728.375 1101567.875 20588322
+  endloop
+endfacet
+facet normal 0 0.991235077381134 0.1321099847555161
+  outer loop
+    vertex 4627938.5 1101567.875 20588322
+    vertex 150728.375 801836.875 22837234
+    vertex 4627938.5 801836.875 22837234
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 4627938.5 1101567.875 20588322
+    vertex 4627938.5 -714223.125 22837234
+    vertex 4627938.5 -714223.125 20588322
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 4627938.5 -714223.125 22837234
+    vertex 4627938.5 1101567.875 20588322
+    vertex 4627938.5 801836.875 22837234
+  endloop
+endfacet
+facet normal -0 -1 -0
+  outer loop
+    vertex 4627938.5 -714223.125 22837234
+    vertex 150728.375 -714223.125 20588322
+    vertex 4627938.5 -714223.125 20588322
+  endloop
+endfacet
+facet normal -0 -1 -0
+  outer loop
+    vertex 150728.375 -714223.125 20588322
+    vertex 4627938.5 -714223.125 22837234
+    vertex 150728.375 -714223.125 22837234
+  endloop
+endfacet
+endsolid com.sketchup.SketchUp.2019
