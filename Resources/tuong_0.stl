@@ -3443,6 +3443,90 @@ facet normal 1 0 0
     vertex 18667.921875 15333.673828125 31549.97265625
   endloop
 endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 18600 13256.01171875 10550
+    vertex 18400 14056.01171875 10550
+    vertex 18400 13256.01171875 10550
+  endloop
+endfacet
+facet normal 0 0 1
+  outer loop
+    vertex 18400 14056.01171875 10550
+    vertex 18600 13256.01171875 10550
+    vertex 18600 14056.01171875 10550
+  endloop
+endfacet
+facet normal -0 -0 -1
+  outer loop
+    vertex 18600 14056.01171875 8000
+    vertex 18400 13256.01171875 8000
+    vertex 18400 14056.01171875 8000
+  endloop
+endfacet
+facet normal -0 -0 -1
+  outer loop
+    vertex 18400 13256.01171875 8000
+    vertex 18600 14056.01171875 8000
+    vertex 18600 13256.01171875 8000
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 18600 14056.01171875 8000
+    vertex 18600 13256.01171875 10550
+    vertex 18600 13256.01171875 8000
+  endloop
+endfacet
+facet normal 1 0 0
+  outer loop
+    vertex 18600 13256.01171875 10550
+    vertex 18600 14056.01171875 8000
+    vertex 18600 14056.01171875 10550
+  endloop
+endfacet
+facet normal 0 1 0
+  outer loop
+    vertex 18400 14056.01171875 10550
+    vertex 18600 14056.01171875 8000
+    vertex 18400 14056.01171875 8000
+  endloop
+endfacet
+facet normal 0 1 0
+  outer loop
+    vertex 18600 14056.01171875 8000
+    vertex 18400 14056.01171875 10550
+    vertex 18600 14056.01171875 10550
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 18400 14056.01171875 10550
+    vertex 18400 13256.01171875 8000
+    vertex 18400 13256.01171875 10550
+  endloop
+endfacet
+facet normal -1 0 0
+  outer loop
+    vertex 18400 13256.01171875 8000
+    vertex 18400 14056.01171875 10550
+    vertex 18400 14056.01171875 8000
+  endloop
+endfacet
+facet normal 0 -1 0
+  outer loop
+    vertex 18600 13256.01171875 10550
+    vertex 18400 13256.01171875 8000
+    vertex 18600 13256.01171875 8000
+  endloop
+endfacet
+facet normal 0 -1 0
+  outer loop
+    vertex 18400 13256.01171875 8000
+    vertex 18600 13256.01171875 10550
+    vertex 18400 13256.01171875 10550
+  endloop
+endfacet
 facet normal 4.119019578543992e-14 2.971223093950481e-12 -1
   outer loop
     vertex 20757.671875 17713.4765625 39499.97265625
@@ -16643,20 +16727,6 @@ facet normal 0 -1 0
     vertex 18400 13256.01171875 8000
     vertex 18600 13256.01171875 10550
     vertex 18400 13256.01171875 10550
-  endloop
-endfacet
-facet normal -1 1.44382281738048e-13 2.382207389352189e-44
-  outer loop
-    vertex 18400 14056.01171875 10550
-    vertex 18400 13256.01171875 8000
-    vertex 18400 13256.01171875 10550
-  endloop
-endfacet
-facet normal -1 1.44382281738048e-13 2.382207389352189e-44
-  outer loop
-    vertex 18400 13256.01171875 8000
-    vertex 18400 14056.01171875 10550
-    vertex 18400 14056.01171875 8000
   endloop
 endfacet
 facet normal 1.086312144792005e-16 -1.063510811945307e-16 -1
