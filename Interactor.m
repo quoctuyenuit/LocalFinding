@@ -1,7 +1,7 @@
 classdef Interactor
-    %INTERACTOR Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    properties (Access = private)
+        locationsObjects = 'Resources/locations.json'
+    end
     methods (Access = public) 
 %       the "fileName" have to format follow RoomName_Floor
         function result = retrieveData(interactor, fileName)
@@ -9,8 +9,8 @@ classdef Interactor
             result = Geometry(readResult.vertexes, readResult.faces, readResult.colors);
         end
         
-        function result = retrieveObjects(obj, fileName) 
-            result = obj.readJsonFile(fileName).locations;
+        function result = retrieveObjects(obj) 
+            result = obj.readJsonFile(obj.locationsObjects).locations;
         end
     end
     
@@ -24,9 +24,9 @@ classdef Interactor
             
             numberOfVertex = 0;
             report_num = 0;
-            VColor = 0;
+            VColor = [0.2980 0.5725  0.6863];
             v = zeros(10000, 3);
-            c = zeros(10000, 1);
+            c = zeros(10000, 3);
             while feof(fid) == 0            % Test for end of file, if not then do stuff
                 tline = fgetl(fid);         % Reads a line of data from file
                 fword = sscanf(tline, '%s');% Make the line a character string
@@ -71,8 +71,6 @@ classdef Interactor
 
             result = jsondecode(str);
         end
-        
-        
     end
 end
 

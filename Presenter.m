@@ -11,13 +11,34 @@ classdef Presenter < handle
             presenter.retrieveData();
         end
         
-        function list = getListOfFloors(obj) 
-            list = zeros(1, max(presenter.listOfRooms(:).floor));
-            for i = 1 : max(presenter.listOfRooms(:).floor)
-                list(i) = sprintfc('%d',i);
+        function list = getListOfFloors(obj)
+            maxFloor = obj.getMaxFloor();
+            minFloor = obj.getMinFloor();
+            list = cell(1, maxFloor - minFloor + 1);
+            
+            for i = minFloor : maxFloor
+                list(i - minFloor + 1) = sprintfc('%d',i);
             end
         end
         %==================================================================
+        function out = getMaxFloor(obj)
+            out = obj.listOfRooms(1).floor;
+            for i = 1 : length(obj.listOfRooms)
+                if out < obj.listOfRooms(i).floor
+                    out = obj.listOfRooms(i).floor;
+                end
+            end
+        end
+        
+        function out = getMinFloor(obj)
+            out = obj.listOfRooms(1).floor;
+            for i = 1 : length(obj.listOfRooms)
+                if out > obj.listOfRooms(i).floor
+                    out = obj.listOfRooms(i).floor;
+                end
+            end
+        end
+        
         function buildModel(obj, view)
             view.prepareDraw(1);
             
@@ -42,10 +63,11 @@ classdef Presenter < handle
         
         function result = checkArea(obj, location)
             for i = 1:length(obj.listOfRooms)
-                currentRoomVertexes = obj.listOfRooms(i).vertexes;
-                if obj.isInsideOf(currentRoomVertexes, location)
-                    result.label = obj.listOfRooms(i).label;
-                    result.floor = obj.listOfRooms(i).floor;
+                cuurentRoom = obj.listOfRooms(i);
+                
+                if cuurentRoom.isContain([location.x, location.y, location.z])
+                    result.label = currentRoom.name;
+                    result.floor = currentRoom.floor;
                     return;
                 end
             end
@@ -54,14 +76,16 @@ classdef Presenter < handle
         end
         
         function viewOnFloor(obj, floorNumber, view)
+            view.prepareDraw(2);
             for i = 1: length(obj.listOfRooms)
                 room = obj.listOfRooms(i);
                 if (room.floor == floorNumber)
                     isShowCeiling = 0; %False
                     axesIndex = 2; %Show on 2D mode
-                    obj.buildRoom(room, isShowCeiling, axesIndex);
+                    obj.buildRoom(room, isShowCeiling, axesIndex, view);
                 end
             end
+            view.finishDraw(2);
         end
     end
     
@@ -77,7 +101,7 @@ classdef Presenter < handle
             %--------------------------------------------------------------
             %read objects data
             %--------------------------------------------------------------
-            obj.listOfObjects = obj.interactor.retrieveObjects("Resources/locations.json");
+            obj.listOfObjects = obj.interactor.retrieveObjects();
             %--------------------------------------------------------------
             %read model data
             %--------------------------------------------------------------
