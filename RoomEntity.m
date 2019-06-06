@@ -26,15 +26,7 @@ classdef RoomEntity
             obj.ceiling = Geometry();
         end
         
-        function out = isContain(obj,locationArray)
-            if length(locationArray) ~= 3 
-                error('Invalid parameter for isContain function');
-            end
-            location.x = locationArray(1);
-            location.y = locationArray(2);
-            location.z = locationArray(3);
-            
-            
+        function out = isContain(obj,location)
             out = obj.isContainLocation(location, obj.body.vertexes);
         end
     end

@@ -9,6 +9,8 @@ classdef Presenter < handle
         function presenter = Presenter()
             presenter.interactor = Interactor();
             presenter.listOfRooms = presenter.interactor.retrieveListOfRooms;
+            presenter.listOfObjects = presenter.interactor.retrieveListOfObjects();
+            presenter.updateLoraObjects();
         end
         
         function list = getListOfFloors(obj)
@@ -21,51 +23,35 @@ classdef Presenter < handle
             end
         end
         %==================================================================
-        function out = getMaxFloor(obj)
-            out = obj.listOfRooms(1).floor;
-            for i = 1 : length(obj.listOfRooms)
-                if out < obj.listOfRooms(i).floor
-                    out = obj.listOfRooms(i).floor;
-                end
-            end
-        end
-        
-        function out = getMinFloor(obj)
-            out = obj.listOfRooms(1).floor;
-            for i = 1 : length(obj.listOfRooms)
-                if out > obj.listOfRooms(i).floor
-                    out = obj.listOfRooms(i).floor;
-                end
-            end
-        end
-        
         function buildModel(obj, view)
-            view.prepareDraw(1);
+            axesIndex = 1;
+            view.prepareDraw(axesIndex);
             
             for i = 1: length(obj.listOfRooms)
                 isShowCeiling = 1;
-                axesIndex = 1;
                 obj.buildRoom(obj.listOfRooms(i), isShowCeiling, axesIndex, view);
             end
-           
-            view.drawObjects(obj.listOfObjects);
             
-            view.finishDraw(1);
+            for i = 1: length(obj.listOfObjects)
+                obj.listOfObjects(i) = view.drawObject(obj.listOfObjects(i), axesIndex);
+            end
+            
+            view.finishDraw(axesIndex);
         end
         
         function updateObjects(obj, view) 
-%             for i = 1: length(obj.listOfObjects)
-%                 obj.listOfObjects(i).x = obj.listOfObjects(i).x + 5;
-%             end
-%             
-%             view.updateObjects(obj.listOfObjects);
+            for i = 1: length(obj.listOfObjects)
+                obj.listOfObjects(i).location.x = rand * 10000;
+                view.updateObject(obj.listOfObjects(i), 1);
+                view.updateObject(obj.listOfObjects(i), 2);
+            end
         end
         
         function result = checkArea(obj, location)
             for i = 1:length(obj.listOfRooms)
                 currentRoom = obj.listOfRooms(i);
                 
-                if currentRoom.isContain([location.x, location.y, location.z])
+                if currentRoom.isContain(location)
                     result.label = currentRoom.name;
                     result.floor = currentRoom.floor;
                     return;
@@ -85,43 +71,44 @@ classdef Presenter < handle
                     obj.buildRoom(room, isShowCeiling, axesIndex, view);
                 end
             end
+            for i = 1 : length(obj.listOfObjects)
+                if obj.listOfObjects(i).floor == floorNumber
+                    obj.listOfObjects(i) = view.drawObject(obj.listOfObjects(i), 2);
+                end
+            end
             view.finishDraw(2);
         end
     end
     
     methods (Access = private) 
+        function out = getMaxFloor(obj)
+            out = obj.listOfRooms(1).floor;
+            for i = 1 : length(obj.listOfRooms)
+                if out < obj.listOfRooms(i).floor
+                    out = obj.listOfRooms(i).floor;
+                end
+            end
+        end
+        
+        function out = getMinFloor(obj)
+            out = obj.listOfRooms(1).floor;
+            for i = 1 : length(obj.listOfRooms)
+                if out > obj.listOfRooms(i).floor
+                    out = obj.listOfRooms(i).floor;
+                end
+            end
+        end
+        
         function buildRoom(obj, room, isShowCeiling, axesIndex, view)
             view.plotModel(room.body, axesIndex);
             if isShowCeiling
                 view.plotModel(room.ceiling, axesIndex);
             end
-        end
+        end     
         
-        function is = isInsideOf(obj, vertexes, location) 
-            maxX = max(vertexes(:,1));
-            minX = min(vertexes(:,1));
-            
-            if (location.x < minX || location.x > maxX)
-                is = 0;
-                return;
-            end
-            
-            maxY = max(vertexes(:,2));
-            minY = min(vertexes(:,2));
-            
-            if (location.y < minY || location.y > maxY)
-                is = 0;
-                return;
-            end
-            
-            is = 1;
-            
-            maxZ = max(vertexes(:,3));
-            minZ = min(vertexes(:,3));
-            
-            if (location.z < minZ || location.z > maxZ)
-                is = 0;
-                return;
+        function updateLoraObjects(obj)
+            for i = 1: length(obj.listOfObjects)
+                obj.listOfObjects(i) = obj.listOfObjects(i).updateLoraObject(obj.listOfRooms);
             end
         end
     end
