@@ -18,7 +18,6 @@ classdef Interactor
         end
 
         function listOfRooms = retrieveListOfRooms(interactor)
-            listOfRooms = [];
             %--------------------------------------------------------------
             %read model data
             %--------------------------------------------------------------
@@ -27,42 +26,34 @@ classdef Interactor
             resources(1:2, :) = [];
             %--------------------------------------------------------------
             [rows,~] = size(resources);
+            index = 1;
+            listInputs = struct('name', cell(1, rows), 'folderPath', cell(1, rows));
             for i = 1: rows
-                if contains(resources(i).name, '.stl')
-                    path = strcat(resources(i).folder, '/', resources(i).name);
-
-                    readResult = interactor.readSTLFileFromMex(path);
-
-                    try
-                        fileName = erase(resources(i).name, '.stl');
-                        splitResult = split(fileName, '_');
-                        %--------------------------------------------------
-                        if length(splitResult) >= 3
-                            if (str2double(splitResult(3)) == 0)
-                                isCeiling = 1;
-                            else
-                                isCeiling = 0;
-                            end
-                        else
-                            isCeiling = 0;
-                        end
-
-                        %--------------------------------------------------
-                        name = splitResult(1);
-                        floor = str2double(splitResult(2));
-                    catch
-                        name = 'UnKnown';
-                        floor = 0;
-                        isCeiling = 0;
-                    end
-
-                    listOfRooms = interactor.addRoomIntoList(listOfRooms, name, floor, readResult, isCeiling);
-                end
+                listInputs(index).name = resources(i).name;
+                listInputs(index).folderPath = resources(i).folder;
+                index = index + 1;
+            end
+            listOfRooms = STLReaderV2(listInputs);
+            %--------------------------------------------------------------
+            %refactor data
+            %--------------------------------------------------------------
+            for i = 1: length(listOfRooms)
+                listOfRooms(i).ceiling = interactor.refactorData(listOfRooms(i).ceiling.vertexes, listOfRooms(i).ceiling.faces, listOfRooms(i).ceiling.colors);
+                listOfRooms(i).body = interactor.refactorData(listOfRooms(i).body.vertexes, listOfRooms(i).body.faces, listOfRooms(i).body.colors);
             end
         end
     end
 
     methods (Access = private)
+        %Data matrix từ C++ mex function trả ra sẽ bị đảo ngược dữ liệu,
+        %Data matrix cần nx3
+        %Data matrix từ C++ trả về 3xn
+        function geometry = refactorData(obj, v, f, c)
+            geometry.vertexes = v';
+            geometry.colors = c';
+            geometry.faces = f';
+        end
+        
         %Add a room into listOfRoomss
         function listOfRooms = addRoomIntoList(obj, listOfRooms, name, floor, geometry, isCeiling)
             %If room already exists => update room
@@ -93,11 +84,6 @@ classdef Interactor
             else
                 listOfRooms(count + 1) = room;
             end
-        end
-
-        function result = readSTLFileFromMex(obj, fileName)
-            [v, c, f] = STLReader(fileName);
-            result = Geometry(v', f', c');
         end
 
         function result = readJsonFile(obj, fileName)

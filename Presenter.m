@@ -51,7 +51,7 @@ classdef Presenter < handle
             for i = 1:length(obj.listOfRooms)
                 currentRoom = obj.listOfRooms(i);
                 
-                if currentRoom.isContain(location)
+                if obj.roomContainLocation(currentRoom, location)
                     result.label = currentRoom.name;
                     result.floor = currentRoom.floor;
                     return;
@@ -80,7 +80,44 @@ classdef Presenter < handle
         end
     end
     
-    methods (Access = private) 
+    methods (Access = private)
+        function out = roomContainLocation(obj, room, location) 
+            out = (obj.isContainLocation(location, room.body.vertexes) || obj.isContainLocation(location, room.ceiling.vertexes));
+        end
+        
+        function out = isContainLocation(obj, location, vertexes) 
+            if isempty(vertexes)
+                out = 0;
+                return;
+            end
+            
+            maxX = max(vertexes(:,1));
+            minX = min(vertexes(:,1));
+            
+            if (location.x < minX || location.x > maxX)
+                out = 0;
+                return;
+            end
+            
+            maxY = max(vertexes(:,2));
+            minY = min(vertexes(:,2));
+            
+            if (location.y < minY || location.y > maxY)
+                out = 0;
+                return;
+            end
+            
+            maxZ = max(vertexes(:,3));
+            minZ = min(vertexes(:,3));
+            
+            if (location.z < minZ || location.z > maxZ)
+                out = 0;
+                return;
+            end
+            
+            out = 1;
+        end
+        
         function out = getMaxFloor(obj)
             out = obj.listOfRooms(1).floor;
             for i = 1 : length(obj.listOfRooms)
@@ -108,7 +145,16 @@ classdef Presenter < handle
         
         function updateLoraObjects(obj)
             for i = 1: length(obj.listOfObjects)
-                obj.listOfObjects(i) = obj.listOfObjects(i).updateLoraObject(obj.listOfRooms);
+                curObject = obj.listOfObjects(i);
+                
+                for j = 1: length(obj.listOfRooms)
+                    curRoom = obj.listOfRooms(j);
+                    if obj.roomContainLocation(curRoom, curObject.location)
+                        curObject.locationName = curRoom.name;
+                        curObject.floor = curRoom.floor;
+                        break;
+                    end
+                end
             end
         end
     end
