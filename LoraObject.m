@@ -1,7 +1,7 @@
 classdef LoraObject 
     properties
         location       %Store location (x, y, z) where object are located
-        floor          %Store floor of location where object are located
+        level          %Store level of location where object are located
         locationName   %Store name of location where object are located
         name           %Name of object
         viewInformation
@@ -19,7 +19,7 @@ classdef LoraObject
                 obj.location.y = location.y;
                 obj.location.z = location.z;
             end
-            obj.floor = 0;
+            obj.level = 0;
             obj.locationName = '';
         end
         
@@ -28,7 +28,7 @@ classdef LoraObject
                 curRoom = listOfRooms(j);
                 if curRoom.isContain(obj.location)
                     obj.locationName = curRoom.name;
-                    obj.floor = curRoom.floor;
+                    obj.level = curRoom.level;
                     return;
                 end
             end

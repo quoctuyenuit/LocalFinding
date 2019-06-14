@@ -55,12 +55,12 @@ classdef Interactor
         end
         
         %Add a room into listOfRoomss
-        function listOfRooms = addRoomIntoList(obj, listOfRooms, name, floor, geometry, isCeiling)
+        function listOfRooms = addRoomIntoList(obj, listOfRooms, name, level, geometry, isCeiling)
             %If room already exists => update room
             count = length(listOfRooms);
             for i = 1 : count
                 room = listOfRooms(i);
-                if strcmpi(room.name, name) && room.floor == floor
+                if strcmpi(room.name, name) && room.level == level
                     if isCeiling
                         room.ceiling = room.ceiling.concat(geometry);
                     else
@@ -72,7 +72,7 @@ classdef Interactor
             end
 
             %Orelse, create new room and add it into list
-            room = RoomEntity(name, floor);
+            room = RoomEntity(name, level);
             if isCeiling
                 room.ceiling = geometry;
             else

@@ -95,20 +95,20 @@ public:
 
 class RoomEntity {
 private:
-    int floor;
+    int level;
     string name;
 
 public:
     ModelData ceiling;
     ModelData body;
 
-    RoomEntity(string name, int floor) {
+    RoomEntity(string name, int level) {
         this->name = name;
-        this->floor = floor;
+        this->level = level;
     }
 
     bool operator ==(const RoomEntity& room) const {
-      return (this->name.compare(room.name) == 0 )&& this->floor == room.floor;
+      return (this->name.compare(room.name) == 0 )&& this->level == room.level;
     }
 
     tuple<CharArray, TypedArray<int>, StructArray, StructArray> parseDataToStruct() {
@@ -124,7 +124,7 @@ public:
         bodyStruct[0]["colors"] = this->body.getColorsArray();
         bodyStruct[0]["faces"] = this->body.getFacesArray();
 
-        return make_tuple(factory.createCharArray(name), factory.createScalar<int>(floor), ceilingStruct, bodyStruct);
+        return make_tuple(factory.createCharArray(name), factory.createScalar<int>(level), ceilingStruct, bodyStruct);
     }
 };
 
@@ -193,9 +193,9 @@ public:
     static tuple<string, int, bool> parseRoomInformation(string fileName) {
       std::vector<string> vString = split(fileName, "_");
       string name = vString[0]; //-> get name
-      int floor = atoi(vString[1].c_str()); //-> get floor
+      int level = atoi(vString[1].c_str()); //-> get level
       bool isCeiling = vString.size() < 3 ? false : vString[2].at(0) == '0';
-      return make_tuple(name, floor, isCeiling);
+      return make_tuple(name, level, isCeiling);
     }
 
     static tuple<string, int, bool, ModelData> readSTLFile(string folderPath, string fileName) {
@@ -235,13 +235,13 @@ public:
         auto listOfRooms = this->retrieveData(matlabStructArray);
 
         unsigned long resultSize = listOfRooms.size();
-        StructArray result = factory.createStructArray({resultSize, 1},{"ceiling", "body", "name", "floor"});
+        StructArray result = factory.createStructArray({resultSize, 1},{"ceiling", "body", "name", "level"});
 
         unsigned long index = 0;
         std::for_each(listOfRooms.begin(), listOfRooms.end(), [&](RoomEntity room){
            tuple<CharArray, TypedArray<int>, StructArray, StructArray> parseData = room.parseDataToStruct();
            result[index]["name"] = get<0>(parseData);
-           result[index]["floor"] = get<1>(parseData);
+           result[index]["level"] = get<1>(parseData);
            result[index]["ceiling"] = get<2>(parseData);
            result[index++]["body"] = get<3>(parseData);
         });
@@ -272,11 +272,11 @@ public:
       for(auto fut = vFuture.begin(); fut != vFuture.end(); fut++) {
           tuple<string, int, bool, ModelData> result = (*fut).get();
           string name = get<0>(result);
-          int floor = get<1>(result);
+          int level = get<1>(result);
           bool isCeiling = get<2>(result);
           ModelData data = get<3>(result);
 
-          RoomEntity room(name, floor);
+          RoomEntity room(name, level);
           this->addToListOfRooms(listOfRooms, room, data, isCeiling);
       }
 

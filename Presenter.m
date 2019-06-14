@@ -53,7 +53,7 @@ classdef Presenter < handle
                 
                 if obj.roomContainLocation(currentRoom, location)
                     result.label = currentRoom.name;
-                    result.floor = currentRoom.floor;
+                    result.level = currentRoom.level;
                     return;
                 end
             end
@@ -65,14 +65,14 @@ classdef Presenter < handle
             view.prepareDraw(2);
             for i = 1: length(obj.listOfRooms)
                 room = obj.listOfRooms(i);
-                if (room.floor == floorNumber)
+                if (room.level == floorNumber)
                     isShowCeiling = 0; %False
                     axesIndex = 2; %Show on 2D mode
                     obj.buildRoom(room, isShowCeiling, axesIndex, view);
                 end
             end
             for i = 1 : length(obj.listOfObjects)
-                if obj.listOfObjects(i).floor == floorNumber
+                if obj.listOfObjects(i).level == floorNumber
                     obj.listOfObjects(i) = view.drawObject(obj.listOfObjects(i), 2);
                 end
             end
@@ -119,19 +119,19 @@ classdef Presenter < handle
         end
         
         function out = getMaxFloor(obj)
-            out = obj.listOfRooms(1).floor;
+            out = obj.listOfRooms(1).level;
             for i = 1 : length(obj.listOfRooms)
-                if out < obj.listOfRooms(i).floor
-                    out = obj.listOfRooms(i).floor;
+                if out < obj.listOfRooms(i).level
+                    out = obj.listOfRooms(i).level;
                 end
             end
         end
         
         function out = getMinFloor(obj)
-            out = obj.listOfRooms(1).floor;
+            out = obj.listOfRooms(1).level;
             for i = 1 : length(obj.listOfRooms)
-                if out > obj.listOfRooms(i).floor
-                    out = obj.listOfRooms(i).floor;
+                if out > obj.listOfRooms(i).level
+                    out = obj.listOfRooms(i).level;
                 end
             end
         end
@@ -151,7 +151,7 @@ classdef Presenter < handle
                     curRoom = obj.listOfRooms(j);
                     if obj.roomContainLocation(curRoom, curObject.location)
                         curObject.locationName = curRoom.name;
-                        curObject.floor = curRoom.floor;
+                        curObject.level = curRoom.level;
                         break;
                     end
                 end
