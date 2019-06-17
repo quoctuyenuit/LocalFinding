@@ -1,1 +1,1 @@
-mex src/STLReader.cpp
+mex('src/STLReader/STLReader.cpp', '-Lsrc/STLReader', '-Isrc/STLReader')

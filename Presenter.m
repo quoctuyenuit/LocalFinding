@@ -1,16 +1,25 @@
 classdef Presenter < handle
     properties (Access = private)
         interactor Interactor
-        listOfRooms     %List of rooms in model
         listOfObjects   %List of current objects
+        listGateways
+        timerObj
     end
+    
+    properties (Access = public)
+        listOfRooms     %List of rooms in model, let it in public to get from view
+        modelData
+    end
+    
     methods (Access = public)
         %Constructor
         function presenter = Presenter()
             presenter.interactor = Interactor();
-            presenter.listOfRooms = presenter.interactor.retrieveListOfRooms;
+            [presenter.listOfRooms, presenter.modelData] = presenter.interactor.retrieveListOfRooms;
             presenter.listOfObjects = presenter.interactor.retrieveListOfObjects();
-            presenter.updateLoraObjects();
+            presenter.listGateways = presenter.interactor.retrieveListGateways();
+            presenter.timerObj = timer('ExecutionMode', 'fixedRate', 'Period', 3, 'TimerFcn', {@presenter.updateObjects});
+            start(presenter.timerObj);
         end
         
         function list = getListOfFloors(obj)
@@ -23,27 +32,53 @@ classdef Presenter < handle
             end
         end
         %==================================================================
-        function buildModel(obj, view)
-            axesIndex = 1;
-            view.prepareDraw(axesIndex);
-            
-            for i = 1: length(obj.listOfRooms)
-                isShowCeiling = 1;
-                obj.buildRoom(obj.listOfRooms(i), isShowCeiling, axesIndex, view);
+        %Get nodes data
+        %==================================================================
+        function out = getListNodes(obj) 
+            n = length(obj.listOfObjects);
+            out = repmat(ObjectView(), n, 1);
+            for i = 1 : n
+                data = obj.listOfObjects(i);
+                out(i).data = data;
+                checkedResult = obj.checkArea(data.getLocation());
+                out(i).level = checkedResult.level;
+                out(i).locationName = checkedResult.name;
+                out(i).color = [0 0 1]; %blue
             end
-            
-            for i = 1: length(obj.listOfObjects)
-                obj.listOfObjects(i) = view.drawObject(obj.listOfObjects(i), axesIndex);
-            end
-            
-            view.finishDraw(axesIndex);
         end
-        
-        function updateObjects(obj, view) 
+        %==================================================================
+        %Get gateways data
+        %==================================================================
+        function out = getListGateways(obj)
+            n = length(obj.listGateways);
+            out = repmat(ObjectView(), n, 1);
+            for i = 1 : n
+                data = obj.listGateways(i);
+                out(i).data = data;
+                checkedResult = obj.checkArea(data.getLocation());
+                out(i).level = checkedResult.level;
+                out(i).locationName = checkedResult.name;
+                out(i).color = [1 0 0]; %red
+            end
+        end
+        %==================================================================
+        function out = getModelDataAt(obj, level)
+            n = length(obj.listOfRooms);
+            out.vertexes = [];
+            out.faces = [];
+            out.colors = [];
+            for i = 1: n
+                if obj.listOfRooms(i).level == level
+                    out = obj.concatModelData(out, obj.listOfRooms(i));
+                end
+            end
+        end
+        %==================================================================
+        function updateObjects(obj, timerObj, timerData) 
             for i = 1: length(obj.listOfObjects)
-                obj.listOfObjects(i).location.x = rand * 10000;
-                view.updateObject(obj.listOfObjects(i), 1);
-                view.updateObject(obj.listOfObjects(i), 2);
+                obj.listOfObjects(i).x = rand * 10000;
+                obj.listOfObjects(i).z = rand * 50000;
+                
             end
         end
         
@@ -52,35 +87,44 @@ classdef Presenter < handle
                 currentRoom = obj.listOfRooms(i);
                 
                 if obj.roomContainLocation(currentRoom, location)
-                    result.label = currentRoom.name;
+                    result.name = currentRoom.name;
                     result.level = currentRoom.level;
                     return;
                 end
             end
-%           if none of rooms contains the location then result is null
-            result = 0;
-        end
-        
-        function viewOnFloor(obj, floorNumber, view)
-            view.prepareDraw(2);
-            for i = 1: length(obj.listOfRooms)
-                room = obj.listOfRooms(i);
-                if (room.level == floorNumber)
-                    isShowCeiling = 0; %False
-                    axesIndex = 2; %Show on 2D mode
-                    obj.buildRoom(room, isShowCeiling, axesIndex, view);
-                end
-            end
-            for i = 1 : length(obj.listOfObjects)
-                if obj.listOfObjects(i).level == floorNumber
-                    obj.listOfObjects(i) = view.drawObject(obj.listOfObjects(i), 2);
-                end
-            end
-            view.finishDraw(2);
+            result.name = 'Không thuộc mô hình';
+            result.level = -1;
         end
     end
     
     methods (Access = private)
+        function lhs = concatModelData(obj, lhs, rhs)
+            lhs.vertexes = [lhs.vertexes; rhs.body.vertexes];
+            lhs.colors = [lhs.colors; rhs.body.colors];
+            [n, ~] = size(rhs.body.vertexes);
+            lhs.faces = obj.concatFaces(lhs.faces, n); 
+        end
+        
+        function newFaces = concatFaces(obj, faces, numberOfFaces)
+            if mod(numberOfFaces, 3) ~= 0
+                error('numberOfFaces have to divisible by 3');
+            end
+            newColumns = numberOfFaces / 3;
+            if isempty(faces)
+                maxOfFaces = 1;
+            else
+                maxOfFaces = max(faces(:)) + 1;
+            end
+            [col, ~] = size(faces);
+            newFaces = repmat([0 0 0], col + newColumns, 1);
+            newFaces(1:col, :) = faces; %copy old data
+            
+            for i = col + 1: col + newColumns
+                newFaces(i, :) = maxOfFaces:1:maxOfFaces + 2;
+                maxOfFaces = maxOfFaces + 3;
+            end
+        end
+        
         function out = roomContainLocation(obj, room, location) 
             out = (obj.isContainLocation(location, room.body.vertexes) || obj.isContainLocation(location, room.ceiling.vertexes));
         end
@@ -132,28 +176,6 @@ classdef Presenter < handle
             for i = 1 : length(obj.listOfRooms)
                 if out > obj.listOfRooms(i).level
                     out = obj.listOfRooms(i).level;
-                end
-            end
-        end
-        
-        function buildRoom(obj, room, isShowCeiling, axesIndex, view)
-            view.plotModel(room.body, axesIndex);
-            if isShowCeiling
-                view.plotModel(room.ceiling, axesIndex);
-            end
-        end     
-        
-        function updateLoraObjects(obj)
-            for i = 1: length(obj.listOfObjects)
-                curObject = obj.listOfObjects(i);
-                
-                for j = 1: length(obj.listOfRooms)
-                    curRoom = obj.listOfRooms(j);
-                    if obj.roomContainLocation(curRoom, curObject.location)
-                        curObject.locationName = curRoom.name;
-                        curObject.level = curRoom.level;
-                        break;
-                    end
                 end
             end
         end

@@ -1,23 +1,39 @@
 classdef Interactor
     properties (Access = private)
         locationsObjectsPath = 'Resources/locations.json'
+        gatewayPath = 'Resources/gateways.json'
         resourcePath = 'Resources'
     end
     methods (Access = public) 
         function listOfObjects = retrieveListOfObjects(interactor)
-            listRaw = interactor.readJsonFile(interactor.locationsObjectsPath).locations;
+            listRaw = interactor.readJsonFile(interactor.locationsObjectsPath).nodes;
             [rows, ~] = size(listRaw);
             listOfObjects = repmat(LoraObject(), rows, 1);
             for i = 1 : rows
-                listOfObjects(i).location.x = listRaw(i).x;
-                listOfObjects(i).location.y = listRaw(i).y;
-                listOfObjects(i).location.z = listRaw(i).z;
+                listOfObjects(i).x = listRaw(i).x;
+                listOfObjects(i).y = listRaw(i).y;
+                listOfObjects(i).z = listRaw(i).z;
 
-                listOfObjects(i).name = listRaw(i).label;
+                listOfObjects(i).name = listRaw(i).name;
+                listOfObjects(i).id = listRaw(i).id;
+            end
+        end
+        
+        function out = retrieveListGateways(interactor)
+            listRaw = interactor.readJsonFile(interactor.gatewayPath).gateways;
+            [rows, ~] = size(listRaw);
+            out = repmat(LoraObject(), rows, 1);
+            for i = 1 : rows
+                out(i).x = listRaw(i).x;
+                out(i).y = listRaw(i).y;
+                out(i).z = listRaw(i).z;
+
+                out(i).name = listRaw(i).name;
+                out(i).id = listRaw(i).id;
             end
         end
 
-        function listOfRooms = retrieveListOfRooms(interactor)
+        function [listOfRooms, modelData] = retrieveListOfRooms(interactor)
             %--------------------------------------------------------------
             %read model data
             %--------------------------------------------------------------
@@ -33,14 +49,17 @@ classdef Interactor
                 listInputs(index).folderPath = resources(i).folder;
                 index = index + 1;
             end
-            listOfRooms = STLReaderV2(listInputs);
+            dataSource =  STLReaderV2(listInputs);
+            listOfRooms = dataSource.rooms;
+            modelData = dataSource.modelData;
             %--------------------------------------------------------------
             %refactor data
             %--------------------------------------------------------------
             for i = 1: length(listOfRooms)
-                listOfRooms(i).ceiling = interactor.refactorData(listOfRooms(i).ceiling.vertexes, listOfRooms(i).ceiling.faces, listOfRooms(i).ceiling.colors);
-                listOfRooms(i).body = interactor.refactorData(listOfRooms(i).body.vertexes, listOfRooms(i).body.faces, listOfRooms(i).body.colors);
+                listOfRooms(i).ceiling = interactor.refactorData(listOfRooms(i).ceiling);
+                listOfRooms(i).body = interactor.refactorData(listOfRooms(i).body);
             end
+            modelData = interactor.refactorData(modelData);
         end
     end
 
@@ -48,10 +67,10 @@ classdef Interactor
         %Data matrix từ C++ mex function trả ra sẽ bị đảo ngược dữ liệu,
         %Data matrix cần nx3
         %Data matrix từ C++ trả về 3xn
-        function geometry = refactorData(obj, v, f, c)
-            geometry.vertexes = v';
-            geometry.colors = c';
-            geometry.faces = f';
+        function geometry = refactorData(obj, data)
+            geometry.vertexes = data.vertexes';
+            geometry.colors = data.colors';
+            geometry.faces = data.faces';
         end
         
         %Add a room into listOfRoomss

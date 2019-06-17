@@ -8,125 +8,23 @@
 #include <fstream>
 #include <vector>
 #include <future>
+#include <string>
+#include <iostream>
+#include <tuple>
+
 #include "mex.hpp"
 #include "mexAdapter.hpp"
-#include <string>
-#include <memory>
-#include <iostream>
-#include <optional>
-#include <tuple>
-#include <stdlib.h>
+#include "ModelData.h"
+#include "RoomEntity.h"
+
 using namespace std;
+using namespace matlab::mex;
+using namespace matlab::data;
 
 #define kVERTEX "vertex"
 #define kCOLOR "color"
 #define fName "name"
 #define fFolderPath "folderPath"
-
-
-using namespace matlab::mex;
-using namespace matlab::data;
-//==============================================================================
-//Body
-//==============================================================================
-
-
-class ModelData {
-private:
-    Array getArray(std::vector<double> data) {
-        unsigned long dataSize = data.size();
-        ArrayFactory factory;
-        auto data_p = factory.createBuffer<double>(dataSize);
-        //--------------------------------------------------------------------------
-        //fill data
-        //--------------------------------------------------------------------------
-        double* dataPtr = data_p.get();
-        std::copy(data.begin(), data.end(), dataPtr);
-
-        return factory.createArrayFromBuffer({ 3, dataSize / 3 }, std::move(data_p));
-    }
-public:
-    std::vector<double> vertexes;
-    std::vector<double> colors;
-    std::vector<double> faces;
-
-    void updateData(const ModelData& data) {
-      this->vertexes.insert( this->vertexes.end(), data.vertexes.begin(), data.vertexes.end());
-      this->colors.insert( this->colors.end(), data.colors.begin(), data.colors.end());
-    }
-
-    int getNumberOfVertexes() {
-        return vertexes.size() / 3;
-    }
-
-    void setFaces() {
-        faces.clear();
-        int size = vertexes.size() / 3;
-        for (int i = 1; i <= size; i++)
-            faces.push_back(i);
-    }
-
-    void setColorsIfNotExists() {
-        if (colors.size() == 0) {
-            int numberOfVertexes = getNumberOfVertexes();
-            for(int i = 0; i < numberOfVertexes; i++) {
-                colors.push_back(0.2980); //R
-                colors.push_back(0.5725); //G
-                colors.push_back(0.6863); //B
-            }
-        }
-    }
-
-    //============================================================================
-    //Mapping function
-    //============================================================================
-    Array getVertexesArray() {
-        return this->getArray(this->vertexes);
-    }
-
-    Array getFacesArray() {
-        return this->getArray(this->faces);
-    }
-
-    Array getColorsArray() {
-        return this->getArray(this->colors);
-    }
-};
-
-class RoomEntity {
-private:
-    int level;
-    string name;
-
-public:
-    ModelData ceiling;
-    ModelData body;
-
-    RoomEntity(string name, int level) {
-        this->name = name;
-        this->level = level;
-    }
-
-    bool operator ==(const RoomEntity& room) const {
-      return (this->name.compare(room.name) == 0 )&& this->level == room.level;
-    }
-
-    tuple<CharArray, TypedArray<int>, StructArray, StructArray> parseDataToStruct() {
-        ArrayFactory factory;
-        StructArray ceilingStruct = factory.createStructArray({ 1,1 },{"vertexes", "colors", "faces"} );
-        StructArray bodyStruct = factory.createStructArray({ 1,1 },{"vertexes", "colors", "faces"} );
-
-        ceilingStruct[0]["vertexes"] = this->ceiling.getVertexesArray();
-        ceilingStruct[0]["colors"] = this->ceiling.getColorsArray();
-        ceilingStruct[0]["faces"] = this->ceiling.getFacesArray();
-
-        bodyStruct[0]["vertexes"] = this->body.getVertexesArray();
-        bodyStruct[0]["colors"] = this->body.getColorsArray();
-        bodyStruct[0]["faces"] = this->body.getFacesArray();
-
-        return make_tuple(factory.createCharArray(name), factory.createScalar<int>(level), ceilingStruct, bodyStruct);
-    }
-};
 
 //==============================================================================
 //Mex Function
@@ -228,24 +126,30 @@ public:
     void operator()(ArgumentList outputs, ArgumentList inputs)
     {
         checkArguments (outputs,inputs);
-
         ArrayFactory factory;
         StructArray const matlabStructArray = inputs[0];
+        checkStructureElements(matlabStructArray);
         // checkStructureElements(matlabStructArray);
         auto listOfRooms = this->retrieveData(matlabStructArray);
 
         unsigned long resultSize = listOfRooms.size();
-        StructArray result = factory.createStructArray({resultSize, 1},{"ceiling", "body", "name", "level"});
+        StructArray result = factory.createStructArray({1, 1},{"modelData", "rooms"});
+        StructArray roomsData = factory.createStructArray({resultSize, 1},{"ceiling", "body", "name", "level"});
 
+        ModelData modelData;
         unsigned long index = 0;
         std::for_each(listOfRooms.begin(), listOfRooms.end(), [&](RoomEntity room){
            tuple<CharArray, TypedArray<int>, StructArray, StructArray> parseData = room.parseDataToStruct();
-           result[index]["name"] = get<0>(parseData);
-           result[index]["level"] = get<1>(parseData);
-           result[index]["ceiling"] = get<2>(parseData);
-           result[index++]["body"] = get<3>(parseData);
+           roomsData[index]["name"] = get<0>(parseData);
+           roomsData[index]["level"] = get<1>(parseData);
+           roomsData[index]["ceiling"] = get<2>(parseData);
+           roomsData[index++]["body"] = get<3>(parseData);
+           modelData += room.body;
+           modelData += room.ceiling;
         });
 
+        result[0]["modelData"] = modelData.parseDataToStruct();
+        result[0]["rooms"] = roomsData;
         outputs[0] = result;
     }
 
@@ -280,10 +184,10 @@ public:
           this->addToListOfRooms(listOfRooms, room, data, isCeiling);
       }
 
-      std::for_each(listOfRooms.begin(), listOfRooms.end(), [](RoomEntity& room) {
-        room.ceiling.setFaces();
-        room.body.setFaces();
-      });
+      // std::for_each(listOfRooms.begin(), listOfRooms.end(), [](RoomEntity& room) {
+      //   room.ceiling.setFaces();
+      //   room.body.setFaces();
+      // });
       return listOfRooms;
     }
 
@@ -292,9 +196,9 @@ public:
       for(int i = 0; i < n; i++) {
         if (listOfRooms[i] == newRoom) {
           if (isCeiling)
-            listOfRooms[i].ceiling.updateData(data);
+            listOfRooms[i].ceiling += data;
           else
-            listOfRooms[i].body.updateData(data);
+            listOfRooms[i].body += data;
           return;
         }
       }
@@ -331,9 +235,9 @@ public:
         std::vector<std::string> fieldNames(fields.begin(), fields.end());
 
         /* Produce error if structure has more than 2 fields. */
-        if(nfields != 3) {
-            displayError("Struct must consist of 3 entries."
-                    "(First: char array, Second: numeric double scalar).");
+        if(nfields != 2) {
+            displayError("Struct must consist of 2 entries."
+                    "(First: char array, Second: char array).");
         }
 
         /* Walk through each structure element. */
@@ -350,11 +254,11 @@ public:
                         "This field must contain character array.");
             }
 
-            /* Produce error if phone number field in structure is empty. */
+            /* Produce error if path field in structure is empty. */
             if(structField2.isEmpty()) {
                 emptyFieldInformation(fieldNames[1],entryIndex);
                 displayError("Empty fields are not allowed in this program."
-                        "This field must contain numeric double scalar.");
+                        "This field must contain character array.");
             }
 
             /* Produce error if name is not a valid character array. */
@@ -362,17 +266,10 @@ public:
                 invalidFieldInformation(fieldNames[0],entryIndex);
                 displayError("This field must contain character array.");
             }
-            /* Produce error if phone number is not a valid double scalar. */
+            /* Produce error if path is not a valid character array. */
             if (structField2.getType() != ArrayType::CHAR) {
                 invalidFieldInformation(fieldNames[1],entryIndex);
                 displayError("This field must contain character array.");
-            }
-
-            /* Produce error if phone number is not a valid double scalar. */
-            if (structField2.getType() != ArrayType::DOUBLE
-                    || structField2.getNumberOfElements() != 1) {
-                invalidFieldInformation(fieldNames[1],entryIndex);
-                displayError("This field must contain numeric double scalar.");
             }
         }
     }
